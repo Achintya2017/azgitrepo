@@ -1,23 +1,31 @@
-﻿name: Pipelineworkflow
+﻿name: Pipeline Workflow
 
 on:
   push:
     branches:
-      -  main
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
-    build:
-        name: Azure Pipeline
-        runs-on: ubuntu-latest
-        steps:
-        - name: Azure Pipeline Action
-          uses: Azure/pipeline@v1
-          with:
-            azure-devops-project-url: https://dev.azure.com/v-2amitc/mytestproj
-            azure-pipeline-name: 'git-hubaction_new'
-            azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN}}
+  build:
+    name: Azure Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-        
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_DEVOPS_TOKEN }}
+
+      - name: Set up Azure CLI
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 'latest'
+
+      - name: Run Azure CLI command
+        run: |
+          az pipeline create --name 'git-hubaction_new' --project https://dev.azure.com/v-2amitc/mytestproj
